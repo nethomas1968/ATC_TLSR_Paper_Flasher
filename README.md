@@ -13,3 +13,5 @@ This project aims to do the same thing from a Linux command line C++ program.
 ![](/Pins.png)
 
 ![](/USB_UART_Flashing_connection.jpg)
+
+![](/CH340.jpg)
