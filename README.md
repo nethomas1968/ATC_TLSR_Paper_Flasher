@@ -7,3 +7,7 @@ That describes how to work with a TLSR based Electronic Paper Display, such as t
 That project utilises a webserial flashing tool from a browser tab. See https://atc1441.github.io/ATC_TLSR_Paper_UART_Flasher.html .
 
 This project aims to do the same thing from a Linux command line C++ program.
+
+#Some Photos
+
+![](/Pins.png)
