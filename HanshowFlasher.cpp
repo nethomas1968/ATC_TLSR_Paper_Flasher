@@ -79,8 +79,9 @@ int main(int argc, char** argv)
         usage(argv[0]);
         return 0;
     }
-    
-    if (debugLevel > 0) log.enable(NOSHOW_DATE_TIME); // Logger must be enabled before use. Use "true" to see date/time in the log file.
+
+    log.setLogLevel(debugLevel);    
+    log.enable(NOSHOW_DATE_TIME); // Logger must be enabled before use. Use "true" to see date/time in the log file.
 
     log << argv[0] << ": START" << endl;
 

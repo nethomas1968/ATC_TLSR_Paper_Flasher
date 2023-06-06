@@ -28,19 +28,19 @@ MCUTools::MCUTools(Serial *s, uint32_t delay)
 
 void MCUTools::flashWriteEnable() // send flash cmd 0x06 write enable to flash
 {
-    if (m_pLogger != nullptr) *m_pLogger << "flashWriteEnable" << endl;
+    if (m_pLogger != nullptr && m_pLogger->getLogLevel() > 0) *m_pLogger << "flashWriteEnable" << endl;
 	flashByteCmd(0x06);
 }
 
 void MCUTools::flashWakeUp() // send flash cmd 0xab to wakeup flash
 { 
-    if (m_pLogger != nullptr) *m_pLogger << "flashWakeUp" << endl;
+    if (m_pLogger != nullptr && m_pLogger->getLogLevel() > 0) *m_pLogger << "flashWakeUp" << endl;
     flashByteCmd(0xab);
 }
 
 void MCUTools::flashEraseAll()
 {
-    if (m_pLogger != nullptr) *m_pLogger << "flashEraseAll" << endl;
+    if (m_pLogger != nullptr && m_pLogger->getLogLevel() > 0) *m_pLogger << "flashEraseAll" << endl;
     flashByteCmd(0x60);
 }
 
@@ -78,7 +78,7 @@ bool MCUTools::writeFlashBlk(uint32_t addr, unsigned char *data, uint32_t length
     unsigned char val[2];
     unsigned char *pkt;
 
-    if (m_pLogger != nullptr) *m_pLogger << "writeFlashBlk" << endl;
+    if (m_pLogger != nullptr && m_pLogger->getLogLevel() > 0) *m_pLogger << "writeFlashBlk" << endl;
 
 	flashWriteEnable();
 
@@ -119,7 +119,7 @@ void MCUTools::sectorErase(uint32_t addr)
     unsigned char data[2];
     unsigned char *pkt;
 
-    if (m_pLogger != nullptr) *m_pLogger << "sectorErase" << endl;
+    if (m_pLogger != nullptr && m_pLogger->getLogLevel() > 0) *m_pLogger << "sectorErase" << endl;
 
 	flashWriteEnable();
 
@@ -158,7 +158,7 @@ void MCUTools::flashUnlock()
     unsigned char data[2];
     unsigned char *pkt;
 
-    if (m_pLogger != nullptr) *m_pLogger << "flashUnlock" << endl;
+    if (m_pLogger != nullptr && m_pLogger->getLogLevel() > 0) *m_pLogger << "flashUnlock" << endl;
 
     data[0] = 0x00; // cns low
     pkt = sws_wr_addr(0x0d, data, 1);
@@ -187,7 +187,7 @@ void MCUTools::softResetMCU()
 {
     unsigned char data = 0x20;
 
-    if (m_pLogger != nullptr) *m_pLogger << "softResetMCU" << endl;
+    if (m_pLogger != nullptr && m_pLogger->getLogLevel() > 0) *m_pLogger << "softResetMCU" << endl;
 
     if (m_pSerial->getSerial() >= 0) {
         unsigned char *pkt = sws_wr_addr(0x06f, &data, 1);  // Must be free'd when done.
@@ -229,7 +229,7 @@ void MCUTools::flashWrite(string filePath)
             addr = 0;
             sblk = MAX_BLOCK_SIZE; // max spi-flash fifo = 256.
 
-            cout << "Len = " << len << endl;
+            if (m_pLogger != nullptr) *m_pLogger << "Len = " << len << endl;
 
             while (len > 0) {
                 if ((addr & 0x0FFF) == 0) {
@@ -276,7 +276,6 @@ void MCUTools::activate()
         // 2 CPU Stop.    
         //ssize_t num = write(m_pSerial->getSerial(), pkt, (1+6)*10);
         write(m_pSerial->getSerial(), pkt, (1+6)*10);
-        //cout << "activate:" << ((1+6)*10) << "/" << num << endl;
         gettimeofday(&now, NULL);
         tDiff = ((now.tv_sec - start.tv_sec) * 1000000 + now.tv_usec - start.tv_usec) / 1000;
         loopsDone++;

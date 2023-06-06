@@ -41,12 +41,16 @@ public:
   void doLog(const char *text);
   void logToConsole(bool b) { m_bLogToConsole = b; }
 
+  void setLogLevel(uint8_t l) { m_LogLevel = l; }
+  uint8_t getLogLevel() { return m_LogLevel; }
+
 private:
   bool checkFileExists(string filename);
   const string getCurrentDateTime();
   
   bool m_bShowDateTime;
   bool m_bLogToConsole;
+  uint8_t m_LogLevel;
 };
 
 #endif
