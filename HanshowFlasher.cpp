@@ -20,6 +20,7 @@ using namespace std;
 #include "MCUTools.h"
 #include "FileUtils.h"
 #include "TelinkFile.h"
+#include "version.h"
 
 #define SHOW_DATE_TIME true
 #define NOSHOW_DATE_TIME false
@@ -38,7 +39,8 @@ static void usage(const char *progname)
     cout << " -r (optional) Reset MCU." << endl;
     cout << " -u (optional) Unlock flash" << endl;
     cout << " -d1 (optional) Set debug level to 1" << endl;
-    cout << " -h (optional) Show this help and exit." << endl << endl;
+    cout << " -v (optional) Show version information." << endl;
+    cout << " -h (optional) Show this help and exit." << endl;
 }
 
 /***********************************************************************
@@ -56,9 +58,10 @@ int main(int argc, char** argv)
     bool bSoftResetMCU;
     bool bShowHelp = false;
     bool bUnlockFlash = false;
+    bool bShowVersion = false;
     Logger log("./log.txt");
     
-    while ((option = getopt(argc, argv,"d:b:t:f:c:ruh")) != -1)
+    while ((option = getopt(argc, argv,"d:b:t:f:c:ruvh")) != -1)
     {
         switch (option) {
             case 'd' : debugLevel = (uint8_t)atoi(optarg); break;
@@ -68,6 +71,7 @@ int main(int argc, char** argv)
             case 'c' : comPort = optarg; break;
             case 'r' : bSoftResetMCU = true; break;           // optional
             case 'u' : bUnlockFlash = true; break;           // optional
+            case 'v' : bShowVersion = true; break;           // optional
             case 'h' : bShowHelp = true; break;
             default: usage(argv[0]);
             return -1;
@@ -76,6 +80,11 @@ int main(int argc, char** argv)
 
     // -h option, just show help and exit.
     if (bShowHelp) {
+        usage(argv[0]);
+        return 0;
+    }
+    else if (bShowVersion) {
+        cout << argv[0] << " Version " << HANSHOW_FLASHER_VERSION << endl << endl;
         usage(argv[0]);
         return 0;
     }
