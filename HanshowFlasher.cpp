@@ -31,7 +31,7 @@ static void usage(const char *progname)
 {
     cout << endl;
     cout << progname << ": A command line tool to help with flashing the Hanshow Nebular device." << endl;
-    cout << "Usage: " << progname << " [OPTIONS] -b460800 -c/dev/ttyUSB3 [-f./filename.bin] [-t500] [-r] [-d1] [-q] [-h]" << endl << endl;
+    cout << "Usage: " << progname << " [OPTIONS] [-b460800] [-c/dev/ttyUSB3] [-f./filename.bin] [-t500] [-r] [-u] [-d1] [-h]" << endl << endl;
     cout << " -b115200 (required) Set baud rate to 115200." << endl;
     cout << " -c/dev/ttyUSB3 (required) The COM port to use." << endl;
     cout << " -f./filename.bin (optional) The file to upload to the device." << endl;
