@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <cstdlib>
 #include <sstream>
@@ -31,7 +30,7 @@ static void usage(const char *progname)
 {
     cout << endl;
     cout << progname << ": A command line tool to help with flashing the Hanshow Nebular device." << endl;
-    cout << "Usage: " << progname << " [OPTIONS] [-b460800] [-c/dev/ttyUSB3] [-f./filename.bin] [-t500] [-r] [-u] [-d1] [-h]" << endl << endl;
+    cout << "Usage: " << progname << " [OPTIONS] -b460800 -c/dev/ttyUSB3 [-f./filename.bin] [-t500] [-r] [-d1] [-h]" << endl << endl;
     cout << " -b115200 (required) Set baud rate to 115200." << endl;
     cout << " -c/dev/ttyUSB3 (required) The COM port to use." << endl;
     cout << " -f./filename.bin (optional) The file to upload to the device." << endl;
@@ -55,10 +54,11 @@ int main(int argc, char** argv)
     bool bOK = true;
     string binFileFullPath;
     string comPort;
-    bool bSoftResetMCU;
+    bool bSoftResetMCU = false;
     bool bShowHelp = false;
     bool bUnlockFlash = false;
     bool bShowVersion = false;
+    uint8_t countOps = 0;
     Logger log("./log.txt");
     
     while ((option = getopt(argc, argv,"d:b:t:f:c:ruvh")) != -1)
@@ -103,6 +103,21 @@ int main(int argc, char** argv)
         log << "Error, no baud rate set." << endl;
         bOK = false;
     }
+    
+    
+    // How many operations are we being asked to do?
+    if (bSoftResetMCU == true) ++countOps;
+    if (binFileFullPath != "") ++countOps;
+    if (bUnlockFlash == true) ++countOps;
+    
+    // Should really only be one operation to perform.
+    if (countOps > 1) {
+       log << "WARNING: multiple operations requested. We can only do one of Reset, Flash or, Unlock" << endl;
+       log << "Doing a RESET only. " << endl;
+       bSoftResetMCU = true;
+       bUnlockFlash = false;
+       binFileFullPath = "";
+    }
 
     // Check COM port.
     if (comPort == "") {
@@ -146,13 +161,13 @@ int main(int argc, char** argv)
                 log << "delayTimeMS = " << (uint32_t)delayTimeMS << "ms" << endl;
 
                 // What are we doing..
-                if (binFileFullPath != "") {
-                    log << "Programming bin file to flash." << endl;
-                }
                 if (bSoftResetMCU == true) {
                     log << "Soft reset MCU." << endl;
                 }
-                if (bUnlockFlash == true) {
+                else if (binFileFullPath != "") {
+                    log << "Programming bin file to flash." << endl;
+                }
+                else if (bUnlockFlash == true) {
                     log << "Unlocking flash." << endl;
                 }
 
@@ -173,12 +188,18 @@ int main(int argc, char** argv)
                     MCUTools mcu(&sp, delayTimeMS);
                     mcu.setLogger(&log);
                     
-                    if (bSoftResetMCU == true) {
+                    /*
+                     * Operations are either RESET, FLASH, UNLOCK.
+                     * NOTE, we only do ONE of those. 
+                     * Maybe -r, -u, -f options should be exclusive?
+                     */
+                    
+                    if (bSoftResetMCU == true) {   // -r
                         usleep(delayTimeMS*1000);
                         mcu.softResetMCU();
                         //usleep(delayTimeMS*1000);
                     }
-                    else if (binFileFullPath != "") {
+                    else if (binFileFullPath != "") {   // -f
                         log << "Using bin file:" << binFileFullPath << endl;
                         TelinkFile fu(binFileFullPath);
                         if (fu.fileExists()) {
@@ -193,7 +214,11 @@ int main(int argc, char** argv)
                         }
                         else log << "Can't find the bin file!" << endl;
                     }
-                    else if (bUnlockFlash == true) {
+                    else if (bUnlockFlash == true) {  // -u
+                        /* FIXME, does this work ? 
+                         * If we are programming a fresh Nebular device then maybe this needs to be done BEFORE flashing the new image.
+                         * -u and -f and -r options should be exclusive.
+                         */
                         log << "Unlocking flash" << endl;
                         mcu.activate();
                         mcu.flashWriteEnable();
