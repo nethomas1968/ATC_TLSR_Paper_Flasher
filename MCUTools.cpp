@@ -29,7 +29,7 @@ MCUTools::MCUTools(Serial *s, uint32_t delay)
 void MCUTools::flashWriteEnable() // send flash cmd 0x06 write enable to flash
 {
     if (m_pLogger != nullptr && m_pLogger->getLogLevel() > 0) *m_pLogger << "flashWriteEnable" << endl;
-	flashByteCmd(0x06);
+    flashByteCmd(0x06);
 }
 
 void MCUTools::flashWakeUp() // send flash cmd 0xab to wakeup flash
@@ -53,13 +53,13 @@ bool MCUTools::writeFiFo(uint32_t addr, unsigned char *data, uint32_t length)
     unsigned char *pkt;
 
     val = 0x80;
-	pkt = sws_wr_addr(0x00b3, &val, 1); // [0xb3]=0x80 ext.SWS into fifo mode
+    pkt = sws_wr_addr(0x00b3, &val, 1); // [0xb3]=0x80 ext.SWS into fifo mode
     numWritten += (uint32_t)write(m_pSerial->getSerial(), pkt, (1+6)*10);
     expectedLen += ((1+6)*10);
     free(pkt);
 
-	pkt = sws_wr_addr(addr, data, length); // send all data to one register (no increment address - fifo mode)
-	numWritten += (uint32_t)write(m_pSerial->getSerial(), pkt, (length+6)*10);
+    pkt = sws_wr_addr(addr, data, length); // send all data to one register (no increment address - fifo mode)
+    numWritten += (uint32_t)write(m_pSerial->getSerial(), pkt, (length+6)*10);
     expectedLen += ((length+6)*10);
     free(pkt);
 
@@ -80,7 +80,7 @@ bool MCUTools::writeFlashBlk(uint32_t addr, unsigned char *data, uint32_t length
 
     if (m_pLogger != nullptr && m_pLogger->getLogLevel() > 0) *m_pLogger << "writeFlashBlk" << endl;
 
-	flashWriteEnable();
+    flashWriteEnable();
 
     val[0] = 0x00;
     pkt = sws_wr_addr(0x0d, val, 1); // cns low
@@ -89,14 +89,13 @@ bool MCUTools::writeFlashBlk(uint32_t addr, unsigned char *data, uint32_t length
 
     unsigned char *blk = (unsigned char*) malloc(4 + length);
     if (blk != nullptr) {
-
-    	blk[0] = 0x02;
-	    blk[1] = (addr >> 16) & 0xff;
-	    blk[2] = (addr >> 8) & 0xff;
-	    blk[3] = addr & 0xff;
+        blk[0] = 0x02;
+        blk[1] = (addr >> 16) & 0xff;
+        blk[2] = (addr >> 8) & 0xff;
+        blk[3] = addr & 0xff;
         memcpy(&blk[4], data, length);
-	    
-	    if (true == writeFiFo(0x0c, blk, (4+length))) { // send all data to SPI data register
+    
+        if (true == writeFiFo(0x0c, blk, (4+length))) { // send all data to SPI data register
             numWritten += length;
         } 
         free(blk);
@@ -121,7 +120,7 @@ void MCUTools::sectorErase(uint32_t addr)
 
     if (m_pLogger != nullptr && m_pLogger->getLogLevel() > 0) *m_pLogger << "sectorErase" << endl;
 
-	flashWriteEnable();
+    flashWriteEnable();
 
     data[0] = 0x00;
     pkt = sws_wr_addr(0x0d, data, 1); // cns low
@@ -129,27 +128,27 @@ void MCUTools::sectorErase(uint32_t addr)
     free(pkt);
 
     data[0] = 0x20;
-	pkt = sws_wr_addr(0x0c, data, 1); // Flash cmd erase sector
+    pkt = sws_wr_addr(0x0c, data, 1); // Flash cmd erase sector
     write(m_pSerial->getSerial(), pkt, (1+6)*10);
     free(pkt);
 
     data[0] = (addr >> 16) & 0xff;
-	pkt = sws_wr_addr(0x0c, data, 1); // Faddr hi
+    pkt = sws_wr_addr(0x0c, data, 1); // Faddr hi
     write(m_pSerial->getSerial(), pkt, (1+6)*10);
     free(pkt);
 
     data[0] = (addr >> 8) & 0xff;
-	pkt = sws_wr_addr(0x0c, data, 1); // Faddr mi
+    pkt = sws_wr_addr(0x0c, data, 1); // Faddr mi
     write(m_pSerial->getSerial(), pkt, (1+6)*10);
     free(pkt);
 
     data[0] = addr & 0xff;
     data[1] = 0x01;
-	pkt = sws_wr_addr(0x0c, data, 2); // Faddr lo + cns high
+    pkt = sws_wr_addr(0x0c, data, 2); // Faddr lo + cns high
     write(m_pSerial->getSerial(), pkt, (2+6)*10);
     free(pkt);
 
-	usleep(300*1000);
+    usleep(300*1000);
 }
 
 void MCUTools::flashUnlock()
@@ -198,7 +197,7 @@ void MCUTools::softResetMCU()
 
 void MCUTools::flashByteCmd(uint8_t cmd) { 
     unsigned char data[2];
-	unsigned char *pkt;
+    unsigned char *pkt;
     
     data[0] = 0x00;
     pkt = sws_wr_addr(0x0d, data, 1); // cns low
@@ -207,7 +206,7 @@ void MCUTools::flashByteCmd(uint8_t cmd) {
 
     data[0] = cmd;
     data[1] = 0x01;
-	pkt = sws_wr_addr(0x0c, data, 2); // Flash cmd + cns high
+    pkt = sws_wr_addr(0x0c, data, 2); // Flash cmd + cns high
     write(m_pSerial->getSerial(), pkt, (2+6)*10);
     free(pkt);
 }
@@ -254,7 +253,7 @@ void MCUTools::flashWrite(string filePath)
 void MCUTools::activate()
 {
     unsigned char data[2];
-	unsigned char *pkt;
+    unsigned char *pkt;
     struct timeval start, now;
     long int tDiff;
     uint32_t loopsDone = 0;
@@ -262,7 +261,7 @@ void MCUTools::activate()
     if (m_pLogger != nullptr) *m_pLogger << "activate START" << endl;
 
     // DTR & RTS.
-    m_pSerial->reset(100); // DTR & RTS.
+    m_pSerial->reset(100); // DTR & RTS.   // NICKT WAS 100
 
     // 1 Soft Reset MSU.
     softResetMCU();
